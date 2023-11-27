@@ -6,7 +6,7 @@
 /*   By: gyong-si <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 18:25:50 by gyong-si          #+#    #+#             */
-/*   Updated: 2023/11/20 16:59:45 by gyong-si         ###   ########.fr       */
+/*   Updated: 2023/11/27 17:41:14 by gyong-si         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,13 @@
 #include <fcntl.h>
 #include <errno.h>
 #include "ft_printf/ft_printf.h"
-
+#include "ft_printf/libft/libft.h"
 
 /**
 This function opens a file and returns a fd. If read returns -1
 print out a error message.
 **/
+/**
 int	open_file(char *filename, int flags, mode_t mode)
 {
 	int	fd = open(filename, flags, mode);
@@ -42,10 +43,16 @@ int	open_file(char *filename, int flags, mode_t mode)
 	return (fd);
 }
 
-void	run_command(char *command, int	int_fd, int out_fd, char *const envp[])
+**/
+
+/**
+void	run_command(char *command, int	int_fd, int out_fd, char **envp)
 {
 	pid_t	current_pid;
-	char *const new_av[] = {"/bin/sh", "-c", command, NULL};
+	char	**cmd;
+
+	cmd = ft_split(command, ' ');
+	get_path(cmd[0], envp);
 
 	current_pid = fork();
 	// fork failed
@@ -73,9 +80,65 @@ void	run_command(char *command, int	int_fd, int out_fd, char *const envp[])
 		perror("execve");
 		exit(EXIT_FAILURE);
 	}
+} **/
+
+void	get_path(char **array)
+{
+	char	*path;
+	//char	*final_path;
+	char	**path_array;
+	int	i = 0;
+
+	while (array[i] != NULL) 
+	{
+        	if (ft_strncmp(array[i], "PATH=", 5) == 0)
+		{
+			path = array[i] + 5;
+			break ;
+		}
+		i++;
+    	}
+	if (path != NULL)
+	{
+		path_array = ft_split(path, ':');
+		i = 0;
+		while (path_array[i] != NULL)
+		{
+			ft_printf("%s\n", path_array[i]);
+			i++;
+		}
+	}
 }
 
-int	main(int ac, char **av)
+char	*get_command_args(char *command)
+{
+	char **mycmdargs;
+	//char	*finalcmd;
+	size_t len;
+	char	*dst;
+
+	mycmdargs = ft_split(command, ' ');
+	
+	len = ft_strlen(mycmdargs[0]);
+	dst = malloc(sizeof(char) + (len + 1));
+	if (!dst)
+		return (NULL);
+	dst[0] = '/';
+	ft_strlcat(dst, mycmdargs[0], len + 1);
+	return (dst);
+}
+
+int	main(int ac, char **av, char **envp)
+{
+	(void)ac;
+	(void)av;
+	printf("%s", get_command_args(av[1]));
+	get_path(envp);
+	return (0);
+}
+
+/**
+int	main(int ac, char **av, char **envp)
 {
 	int	pipe_fd[2];
 	int	infile_fd;
@@ -83,13 +146,7 @@ int	main(int ac, char **av)
 	int	i;
 	char	*infile;
 	char	*outfile;
-	char *const envp[] = {NULL};
 
-	printf("ac 1: %s\n", av[1]);
-	printf("ac 2: %s\n", av[2]);
-	printf("ac 3: %s\n", av[3]);
-	printf("ac 4: %s\n", av[4]);
-	printf("ac 5: %s\n", av[5]);
 	i = 2;
 	if (ac < 5)
 	{
@@ -121,4 +178,4 @@ int	main(int ac, char **av)
 		close(infile_fd);
 	}
 	return (0);
-}
+} **/
