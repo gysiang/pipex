@@ -66,6 +66,7 @@ SRCS        :=      ft_printf/ft_int_putchar_fd.c \
                           ft_printf/libft/ft_tolower.c \
                           ft_printf/libft/ft_toupper.c \
                           pipex.c \
+                          pipex_utils.c \
                           
 OBJS        := $(SRCS:.c=.o)
 
