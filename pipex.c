@@ -6,7 +6,7 @@
 /*   By: gyong-si <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 18:25:50 by gyong-si          #+#    #+#             */
-/*   Updated: 2023/12/02 12:42:31 by gyong-si         ###   ########.fr       */
+/*   Updated: 2023/12/02 14:23:50 by gyong-si         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,9 @@ void	run_command(char *command, int int_fd, int out_fd, char **envp)
 
 	mycmdargs = ft_split(command, ' ');
 	path = get_path(envp);
+	printf("%s\n", path);
 	mypaths = get_path_array(mycmdargs[0], path);
+	printf("%s\n", mycmdargs[0]);
 	current_pid = fork();
 	if (current_pid == -1)
 	{
@@ -78,13 +80,13 @@ void	pipex(int num, char **s, int pipes_fd[2], char **envp)
 	int		i;
 
 	infile = s[1];
-	outfile = s[num - 2];
+	outfile = s[num - 1];
 	infile_fd = open_file(infile, O_RDONLY, 0666);
 	outfile_fd = open_file(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	i = 2;
 	while (num - 2 > i) 
 	{
-		run_command(s[1], infile_fd, pipes_fd[1], envp);
+		run_command(s[i], infile_fd, pipes_fd[1], envp);
 		close(infile_fd);
 		close(outfile_fd);
 		infile_fd = pipes_fd[0];
