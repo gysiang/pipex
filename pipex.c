@@ -43,7 +43,7 @@ void	run_command(char *command, int int_fd, int out_fd, char **envp)
 {
 	pid_t	current_pid;
 	int		i;
-	const char	*path;
+	char	*path;
 	char	**mypaths;
 	char	**mycmdargs;
 
@@ -69,7 +69,7 @@ void	run_command(char *command, int int_fd, int out_fd, char **envp)
 	}
 }
 
-void	pipex(int num, char **s, int pipes[2], char **envp)
+void	pipex(int num, char **s, int pipes_fd[2], char **envp)
 {
 	char	*infile;
 	char	*outfile;
@@ -84,10 +84,10 @@ void	pipex(int num, char **s, int pipes[2], char **envp)
 	i = 2;
 	while (num - 2 > i) 
 	{
-		run_command(s[1], infile_fd, pipes, envp);
+		run_command(s[1], infile_fd, pipes_fd[1], envp);
 		close(infile_fd);
 		close(outfile_fd);
-		infile_fd = pipes[0];
+		infile_fd = pipes_fd[0];
 		i++;
 	}
 	waitpid(-1, NULL, 0);

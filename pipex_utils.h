@@ -24,8 +24,8 @@
 # include "ft_printf/libft/libft.h"
 
 char	*add_slash(char *s);
-char    *get_path_array(char *cmd, char *path);
-char		*get_path(const char **array);
+char    **get_path_array(char *cmd, char *path);
+char		*get_path(char **array);
 void    	ft_free_array(char **array, int count);
 void    check_fd(int int_fd, int out_fd);
 
