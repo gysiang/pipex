@@ -6,7 +6,7 @@
 /*   By: gyong-si <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 18:25:50 by gyong-si          #+#    #+#             */
-/*   Updated: 2023/12/02 12:37:27 by gyong-si         ###   ########.fr       */
+/*   Updated: 2023/12/02 12:42:31 by gyong-si         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,11 @@ int	open_file(char *filename, int flags, mode_t mode)
 	{
 		perror("open");
 		if (errno == ENOENT)
-			perror("%s", "Error: No such file or directory\n");
+			perror("Error: No such file or directory\n");
 		else if (errno == EACCES)
-			perror("%s", "Error: Permission Denied\n");
+			perror("Error: Permission Denied\n");
 		else
-			perror("%s", "Error: Unable to open\n");
+			perror("Error: Unable to open\n");
 		exit(EXIT_FAILURE);
 	}
 	return (fd);
@@ -43,8 +43,9 @@ void	run_command(char *command, int int_fd, int out_fd, char **envp)
 {
 	pid_t	current_pid;
 	int		i;
-	char	*path;
+	const char	*path;
 	char	**mypaths;
+	char	**mycmdargs;
 
 	mycmdargs = ft_split(command, ' ');
 	path = get_path(envp);
@@ -68,7 +69,7 @@ void	run_command(char *command, int int_fd, int out_fd, char **envp)
 	}
 }
 
-void	pipex(int num, char **s, int pipe[2], char **envp)
+void	pipex(int num, char **s, int pipes[2], char **envp)
 {
 	char	*infile;
 	char	*outfile;
@@ -76,31 +77,27 @@ void	pipex(int num, char **s, int pipe[2], char **envp)
 	int		outfile_fd;
 	int		i;
 
-	infile = av[1];
-	outfile = av[num - 2];
+	infile = s[1];
+	outfile = s[num - 2];
 	infile_fd = open_file(infile, O_RDONLY, 0666);
-	outfile_fd = open_file(outfile, O_WRONLY, | O_CREAT | O_TRUNC, 0666);
+	outfile_fd = open_file(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	i = 2;
 	while (num - 2 > i) 
 	{
-		run_command(s[1], infile_fd, pipe_fd, envp);
+		run_command(s[1], infile_fd, pipes, envp);
 		close(infile_fd);
 		close(outfile_fd);
-		infile_fd = pipe_fd[0];
+		infile_fd = pipes[0];
 		i++;
 	}
 	waitpid(-1, NULL, 0);
-	run_command(s[num - 2], infile_fd, outfile_fd, evnp);
+	run_command(s[num - 2], infile_fd, outfile_fd, envp);
 	close(infile_fd);
 }
 
 int	main(int ac, char **av, char **envp)
 {
 	int		pipe_fd[2];
-	int		infile_fd;
-	int		outfile_fd;
-	char	*infile;
-	char	*outfile;
 
 	if (ac < 5)
 	{

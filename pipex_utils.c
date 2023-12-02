@@ -48,7 +48,7 @@ This function will get a path from the envp that has PATH in its string
 It looks something like this PATH=/bin/user:/local/sbin:/local/bin/....
 Our next task is to ft_split by :
 **/
-char	*get_path(char **array)
+char	*get_path(const char **array)
 {
 	int			i;
 	char		*path;
