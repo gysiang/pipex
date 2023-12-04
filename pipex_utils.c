@@ -6,7 +6,7 @@
 /*   By: gyong-si <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 17:15:57 by gyong-si          #+#    #+#             */
-/*   Updated: 2023/12/01 17:32:00 by gyong-si         ###   ########.fr       */
+/*   Updated: 2023/12/04 12:14:56 by gyong-si         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,10 +69,25 @@ char	*get_path(char **array)
 /**
 This function frees all the strings before count. Used when mem allocation fails.
 **/
+
+/**
 void	ft_free_array(char **array, int count)
 {
 	while (count > 0)
 		free(array[--count]);
+	free(array);
+} **/
+
+void	ft_free_array(char **array)
+{
+	int	i;
+
+	i = 0;
+	while (array[i])
+	{
+		free(array[i]);
+		i++;
+	}
 	free(array);
 }
 
@@ -89,7 +104,7 @@ char	**get_path_array(char *cmd, char *path)
 		tmp = add_slash(path_array[i]);
 		if (tmp == NULL)
 		{
-			ft_free_array(path_array, i);
+			ft_free_array(path_array);
 			return (NULL);
 		}
 		free(path_array[i]);
@@ -97,7 +112,7 @@ char	**get_path_array(char *cmd, char *path)
 		free(tmp);
 		if (path_array[i] == NULL)
 		{
-			ft_free_array(path_array, i);
+			ft_free_array(path_array);
 			return (NULL);
 		}
 		i++;

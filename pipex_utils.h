@@ -6,7 +6,7 @@
 /*   By: gyong-si <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 17:21:51 by gyong-si          #+#    #+#             */
-/*   Updated: 2023/11/28 17:26:23 by gyong-si         ###   ########.fr       */
+/*   Updated: 2023/12/04 12:25:02 by gyong-si         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 char	*add_slash(char *s);
 char    **get_path_array(char *cmd, char *path);
 char		*get_path(char **array);
-void    	ft_free_array(char **array, int count);
+void    	ft_free_array(char **array);
 void    check_fd(int int_fd, int out_fd);
 
 #endif

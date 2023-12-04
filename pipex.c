@@ -6,7 +6,7 @@
 /*   By: gyong-si <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 18:25:50 by gyong-si          #+#    #+#             */
-/*   Updated: 2023/12/02 14:23:50 by gyong-si         ###   ########.fr       */
+/*   Updated: 2023/12/04 13:43:46 by gyong-si         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,18 @@ int	open_file(char *filename, int flags, mode_t mode)
 	return (fd);
 }
 
-int	check_command(char *command)
+void	handle_child_process(pid_t child_pid, char **mypaths, char **mycmdargs)
 {
-	if (access(command, F_OK | X_OK) == 0)
-		return (1);
-	else
-		return (0);
+	int	status;
+
+	waitpid(child_pid, &status, 0);
+	ft_free_array(mypaths);
+	ft_free_array(mycmdargs);
+	if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+	{
+		ft_putstr_fd("Child process failed", 2);
+		exit(EXIT_FAILURE);
+	}
 }
 
 void	run_command(char *command, int int_fd, int out_fd, char **envp)
@@ -49,9 +55,7 @@ void	run_command(char *command, int int_fd, int out_fd, char **envp)
 
 	mycmdargs = ft_split(command, ' ');
 	path = get_path(envp);
-	printf("%s\n", path);
 	mypaths = get_path_array(mycmdargs[0], path);
-	printf("%s\n", mycmdargs[0]);
 	current_pid = fork();
 	if (current_pid == -1)
 	{
@@ -64,11 +68,13 @@ void	run_command(char *command, int int_fd, int out_fd, char **envp)
 		i = -1;
 		while (mypaths[++i])
 		{
-			if (check_command(mypaths[i]) == 1)
+			if (access(mypaths[i], F_OK | X_OK) == 0)
 				execve(mypaths[i], mycmdargs, envp);
 		}
 		exit(EXIT_FAILURE);
 	}
+	else
+		handle_child_process(current_pid, mypaths, mycmdargs);
 }
 
 void	pipex(int num, char **s, int pipes_fd[2], char **envp)
@@ -88,7 +94,7 @@ void	pipex(int num, char **s, int pipes_fd[2], char **envp)
 	{
 		run_command(s[i], infile_fd, pipes_fd[1], envp);
 		close(infile_fd);
-		close(outfile_fd);
+		close(pipes_fd[1]);
 		infile_fd = pipes_fd[0];
 		i++;
 	}
