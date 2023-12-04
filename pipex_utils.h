@@ -26,7 +26,7 @@
 char	*add_slash(char *s);
 char    **get_path_array(char *cmd, char *path);
 char		*get_path(char **array);
-void    	ft_free_array(char **array);
 void    check_fd(int int_fd, int out_fd);
+int	open_file(char *filename, int flags, mode_t mode);
 
 #endif

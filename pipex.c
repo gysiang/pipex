@@ -6,41 +6,40 @@
 /*   By: gyong-si <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 18:25:50 by gyong-si          #+#    #+#             */
-/*   Updated: 2023/12/04 13:43:46 by gyong-si         ###   ########.fr       */
+/*   Updated: 2023/12/04 15:12:04 by gyong-si         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_utils.h"
 
-int	open_file(char *filename, int flags, mode_t mode)
+void	child_process(int fd_array[2], char **mypaths, 
+				char **mycmdargs, char **envp)
 {
-	int	fd;
+	int	i;
 
-	fd = open(filename, flags, mode);
-	if (fd == -1)
+	check_fd(fd_array[0], fd_array[1]);
+	i = -1;
+	while (mypaths[++i])
 	{
-		perror("open");
-		if (errno == ENOENT)
-			perror("Error: No such file or directory\n");
-		else if (errno == EACCES)
-			perror("Error: Permission Denied\n");
-		else
-			perror("Error: Unable to open\n");
-		exit(EXIT_FAILURE);
+		if (access(mypaths[i], F_OK | X_OK) == 0)
+			execve(mypaths[i], mycmdargs, envp);
 	}
-	return (fd);
+	exit(EXIT_FAILURE);
 }
 
-void	handle_child_process(pid_t child_pid, char **mypaths, char **mycmdargs)
+void	parent_process(pid_t child_pid, char **mypaths, char **mycmdargs)
 {
 	int	status;
-
-	waitpid(child_pid, &status, 0);
+	char	*cmd_name;
+	
+	cmd_name = mycmdargs[0];
 	ft_free_array(mypaths);
 	ft_free_array(mycmdargs);
+	waitpid(child_pid, &status, 0);
 	if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 	{
-		ft_putstr_fd("Child process failed", 2);
+		ft_putstr_fd("Child process failed: ", 2);
+		ft_putendl_fd(cmd_name, 2);
 		exit(EXIT_FAILURE);
 	}
 }
@@ -48,10 +47,10 @@ void	handle_child_process(pid_t child_pid, char **mypaths, char **mycmdargs)
 void	run_command(char *command, int int_fd, int out_fd, char **envp)
 {
 	pid_t	current_pid;
-	int		i;
 	char	*path;
 	char	**mypaths;
 	char	**mycmdargs;
+	int	fd_array[2] = {int_fd, out_fd};
 
 	mycmdargs = ft_split(command, ' ');
 	path = get_path(envp);
@@ -63,18 +62,9 @@ void	run_command(char *command, int int_fd, int out_fd, char **envp)
 		exit(EXIT_FAILURE);
 	}
 	if (current_pid == 0) 
-	{
-		check_fd(int_fd, out_fd);
-		i = -1;
-		while (mypaths[++i])
-		{
-			if (access(mypaths[i], F_OK | X_OK) == 0)
-				execve(mypaths[i], mycmdargs, envp);
-		}
-		exit(EXIT_FAILURE);
-	}
+		child_process(fd_array, mypaths, mycmdargs, envp);
 	else
-		handle_child_process(current_pid, mypaths, mycmdargs);
+		parent_process(current_pid, mypaths, mycmdargs);
 }
 
 void	pipex(int num, char **s, int pipes_fd[2], char **envp)

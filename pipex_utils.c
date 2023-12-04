@@ -20,6 +20,25 @@
 #include "ft_printf/ft_printf.h"
 #include "ft_printf/libft/libft.h"
 
+int	open_file(char *filename, int flags, mode_t mode)
+{
+	int	fd;
+
+	fd = open(filename, flags, mode);
+	if (fd == -1)
+	{
+		perror("open");
+		if (errno == ENOENT)
+			perror("Error: No such file or directory\n");
+		else if (errno == EACCES)
+			perror("Error: Permission Denied\n");
+		else
+			perror("Error: Unable to open\n");
+		exit(EXIT_FAILURE);
+	}
+	return (fd);
+}
+
 char	*add_slash(char *s)
 {
 	char	*res;
@@ -64,31 +83,6 @@ char	*get_path(char **array)
 		i++;
 	}
 	return (path);
-}
-
-/**
-This function frees all the strings before count. Used when mem allocation fails.
-**/
-
-/**
-void	ft_free_array(char **array, int count)
-{
-	while (count > 0)
-		free(array[--count]);
-	free(array);
-} **/
-
-void	ft_free_array(char **array)
-{
-	int	i;
-
-	i = 0;
-	while (array[i])
-	{
-		free(array[i]);
-		i++;
-	}
-	free(array);
 }
 
 char	**get_path_array(char *cmd, char *path)
